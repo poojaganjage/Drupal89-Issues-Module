@@ -1,0 +1,4 @@
+services:
+  package_field.package_helper:
+    class: Drupal\package_field\PackageFieldHelper
+    arguments: ['@file_system', '@messenger']

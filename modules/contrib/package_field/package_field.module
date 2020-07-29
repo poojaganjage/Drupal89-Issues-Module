@@ -1,0 +1,135 @@
+<?php
+
+/**
+ * @file
+ * Contains core functions for the Custom Package Field module.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\file\Plugin\Field\FieldType\FileFieldItemList;
+use Drupal\file\Entity\File;
+use Drupal\Core\Url;
+use Drupal\Component\Utility\DiffArray;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\StreamWrapper\PublicStream;
+
+/**
+ * Define the base URI in public scheme.
+ */
+define('BASE_URI', 'public://custom_html_packages/');
+
+/**
+ * Implements hook_entity_presave().
+ */
+function package_field_entity_presave(EntityInterface $entity) {
+  if ($entity instanceof ContentEntityInterface) {
+    foreach ($entity->getFields() as $field) {
+      if ($field instanceof FileFieldItemList) {
+        /** @var FieldConfig $definition */
+        $definition = $field->getFieldDefinition();
+        if ($definition->getType() == 'package_field') {
+          $field_values = $field->getValue();
+
+          if (!$entity->isNew()) {
+            $field_values_original = $entity->original->get($field->getName())->getValue();
+
+            if (!DiffArray::diffAssocRecursive($field_values, $field_values_original)) {
+              continue;
+            }
+          }
+
+          $fids = [];
+          foreach ($field_values as $field_value) {
+            $fids[] = $field_value['target_id'];
+          }
+          _package_field_process_files($fids);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Process file extraction.
+ */
+function _package_field_process_files($fids) {
+  foreach ($fids as $fid) {
+    // Load file.
+    $file = File::load($fid);
+
+    //Load the package field service.
+    $package_helper = \Drupal::service('package_field.package_helper');
+
+    // Load full path.
+    $file_path = $package_helper->buildPathFromUri($file->getFileUri());
+
+    // Check if file exist.
+    if (file_exists($file_path)) {
+      // Instance of Unarchiver class.
+      $unarchiver = $package_helper->getArchiver($file_path);
+
+      // Build destination folder.
+      $destination = $package_helper->buildDestination($file, BASE_URI);
+
+      // Remove destination directory if it already exist.
+      $package_helper->deleteFiles($destination);
+
+      // Extract the archive.
+      $unarchiver->extractTo($destination);
+    }
+    else {
+      \Drupal::messenger()->addMessage(t('The following file does not exist in the file system: %s', ['%s' => $file_path]), 'warning');
+    }
+  }
+}
+
+/**
+ * Implements hook_library_info_build().
+ */
+function package_field_library_info_build() {
+  $libraries = [];
+  $fieldsArray = \Drupal::service('entity_field.manager')->getFieldMapByFieldType('package_field');
+  $entities = array_keys($fieldsArray);
+  $database = \Drupal::database();
+  foreach ($entities as $entity) {
+    $field_names = array_keys($fieldsArray[$entity]);
+    foreach ($field_names as $field_name) {
+      $table_name = $entity . '__' . $field_name;
+      $target_id = $field_name . '_target_id';
+      $query = $database->select($table_name, 't')->fields('t', [$target_id]);
+      $result = $query->execute()->fetchAll();
+      if (!empty($result)) {
+        foreach ($result as $fid) {
+          $fids[] = $fid->$target_id;
+        }
+      }
+    }
+  }
+  foreach ($fids as $fid) {
+    $js = [];
+    $css = [];
+    $file = \Drupal::entityTypeManager()->getStorage('file')->load($fid);
+    $package_helper = \Drupal::service('package_field.package_helper');
+
+    $archived_folder = $package_helper->buildDestination($file, BASE_URI) . '/' . pathinfo($file->getFileName())['filename'];
+
+    $public_path = '/' . PublicStream::basePath();
+    $extract_dir = explode($public_path, $archived_folder);
+    $extract_dir = $public_path . $extract_dir[1];
+    $library_name = 'package_field-' . $file->id();
+    $js[$extract_dir . '/main.js'] = [];
+    $css[$extract_dir . '/style.css'] = [];
+    $libraries += [
+      $library_name => [
+        'version' => 'VERSION',
+        'js' => $js,
+        'css' => [
+          'base' => $css,
+        ],
+      ],
+    ];
+  }
+  return $libraries;
+}
