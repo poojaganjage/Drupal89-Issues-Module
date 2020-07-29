@@ -1,0 +1,1 @@
+hide_content_field

@@ -1,0 +1,18 @@
+name: Hide Content Field
+type: module
+description: Allows to hide the content field
+package: Fields
+core: 8.x
+core_version_requirement: ^8 || ^9
+dependencies:
+  - drupal:field
+
+# Information added by Drupal.org packaging script on 2020-01-31
+# version: '8.x-2.4'
+# project: 'hide_content_field'
+# datestamp: 1580498827
+
+# Information added by Drupal.org packaging script on 2020-06-08
+version: '1.0.x-dev'
+project: 'hide_content_field'
+datestamp: 1591647169

@@ -1,0 +1,120 @@
+<?php
+
+/**
+ * @file
+ * Allows to disable field of entities on the forms.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\field\Entity\FieldConfig;
+
+/**
+ * Implements hook_help().
+ */
+function hide_content_field_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the hide_content_field module.
+    case 'help.page.hide_content_field':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Hide Content Field module allow administrator to hide the field on content form.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ *
+ * Removes the default values form from the field settings page.
+ * Users expect to use the default value form to predefine only certain values
+ * on the widget, but Drupal expects the default value to be complete, and used
+ * whenever an actual address isn't provided. Therefore it's preferable to
+ * hide this functionality and implement our own via custom widget settings.
+ */
+function hide_content_field_form_field_config_edit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+
+  $field = $form_state->getFormObject()->getEntity();
+  $hide_content_field_types = [
+    'string',
+    'list_string',
+    'text',
+    'email',
+    'entity_reference',
+    'path',
+    'uri',
+  ];
+  if (!$field->getFieldStorageDefinition()->isMultiple()) {
+    if (in_array($field->getType(), $hide_content_field_types)) {
+      $form['#validate'][] = config_edit_form_validation;
+      $form['third_party_settings']['hide_content_field']['hide'] = [
+        '#type' => 'checkbox',
+        '#title' => t("Hide"),
+        '#default_value' => $field->getThirdPartySetting('hide_content_field', 'hide'),
+        '#weight' => -10,
+      ];
+    }
+  }
+}
+
+
+/**
+ * @param $form
+ * @param FormStateInterface $form_state
+ */
+function config_edit_form_validation(&$form, FormStateInterface $form_state) {
+  $field = $form_state->getFormObject()->getEntity();
+  if (($field->get('required') == 1)) {
+    if ($field->get('third_party_settings')['hide_content_field']['hide'] == 1) {
+      $form_state->setErrorByName('third_party_settings', t('Required and Hide both cant work together.'));
+    }
+  }
+}
+
+/**
+ * Attaching data to hide fields.
+ *
+ * @param $element
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ * @param $context
+ */
+function hide_content_field_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
+
+  $field_definition = $context['items']->getFieldDefinition();
+  if ($field_definition instanceof FieldConfig) {
+    if ($field_definition->getThirdPartySetting('hide_content_field', 'hide')) {
+      if (\Drupal::request()->query->get('element_parents')) {
+        return true;
+      }
+
+      $key_exists = 'value';
+      $key_ref_entity_exist = 'target_id';
+      if (array_key_exists($key_ref_entity_exist, $element)) {
+        if ($element[$key_ref_entity_exist]['#field_parents'][0] != 'default_value_input') {
+          $element[$key_ref_entity_exist]['#attributes']['class'][] = 'hidden';
+          $element[$key_ref_entity_exist]['#title'] = '';
+          $element[$key_ref_entity_exist]['#description'] = '';
+          $element['#title'] = '';
+          $element['#description'] = '';
+        }
+      } elseif (array_key_exists($key_exists, $element)) {
+        if ($element[$key_exists]['#field_parents'][0] != 'default_value_input') {
+          $element[$key_exists]['#attributes']['class'][] = 'hidden';
+          $element[$key_exists]['#title'] = '';
+          $element[$key_exists]['#description'] = '';
+          $element['#title'] = '';
+          $element['#description'] = '';
+        }
+      } else {
+        if ($element['#field_parents'][0] != 'default_value_input') {
+          $element['#attributes']['class'][] = 'hidden';
+          $element['#title'] = '';
+          $element['#description'] = '';
+          $element['#element_validate'] = [];
+        }
+      }
+    }
+  }
+}

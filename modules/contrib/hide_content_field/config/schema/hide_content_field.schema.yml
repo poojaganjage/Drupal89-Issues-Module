@@ -1,0 +1,7 @@
+field.field.*.*.*.third_party.unique:
+  type: mapping
+  label: Hide Content field third party settings
+  mapping:
+    hide:
+      type: checkbox
+      label: Set if field is Hide or not
