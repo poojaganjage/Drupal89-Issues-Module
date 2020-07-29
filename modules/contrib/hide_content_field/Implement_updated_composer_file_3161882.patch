@@ -1,0 +1,26 @@
+diff --git a/modules/contrib/hide_content_field/composer.json b/modules/contrib/hide_content_field/composer.json
+index e69de29..4267daf 100644
+--- a/modules/contrib/hide_content_field/composer.json
++++ b/modules/contrib/hide_content_field/composer.json
+@@ -0,0 +1,21 @@
++{
++  "name": "drupal/hide_content_field",
++  "description": "Allows to hide the content field",
++  "type": "drupal-module",
++  "homepage": "https://www.drupal.org/project/hide_content_field",
++  "license": "GPL-2.0+",
++  "authors": [
++    {
++      "name": "Chandravilas Kute (chandravilas)",
++      "homepage": "https://www.drupal.org/u/chandravilas",
++      "role": "Maintainer"
++    }
++  ],
++  "support": {
++    "issues": "https://www.drupal.org/project/issues/hide_content_field",
++    "source": "https://git.drupalcode.org/project/hide_content_field"
++  },
++  "require": {
++    "drupal/core": "^8 || ^9"
++  }
++}
