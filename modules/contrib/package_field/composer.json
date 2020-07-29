@@ -1,0 +1,21 @@
+{
+  "name": "drupal/package_field",
+  "description": "Provides Custom Package Field to add the custom HTML packages.",
+  "type": "drupal-module",
+  "homepage": "https://www.drupal.org/project/package_field",
+  "license": "GPL-2.0+",
+  "authors": [
+    {
+      "name": "Rahul Rasgon (rahulrasgon)",
+      "homepage": "https://www.drupal.org/u/rahulrasgon",
+      "role": "Maintainer"
+    }
+  ],
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/package_field",
+    "source": "https://git.drupalcode.org/project/package_field"
+  },
+  "require": {
+    "drupal/core": "^8 || ^9"
+  }
+}
