@@ -1,0 +1,24 @@
+diff --git a/slick_paragraphs.info.yml b/slick_paragraphs.info.yml
+index 2c6f8dd..c151615 100644
+--- a/slick_paragraphs.info.yml
++++ b/slick_paragraphs.info.yml
+@@ -1,14 +1,12 @@
+ name: Slick Paragraphs
+ type: module
+ description: 'Provides Slick Carousel integration with Paragraphs.'
+-# core: 8.x
++core: 8.x
++core_version_requirement: ^8 || ^9
+ package: Slick
+ dependencies:
+   - paragraphs:paragraphs
+   - slick:slick (>= 2.x)
+ 
+-# Information added by Drupal.org packaging script on 2019-03-08
+-version: '8.x-2.0'
+-core: '8.x'
+-project: 'slick_paragraphs'
+-datestamp: 1552057686
++# Add a fake version so local drush and Git checkouts do not fail dependencies.
++version: 8.x-2.x
+\ No newline at end of file
