@@ -1,0 +1,11 @@
+name: Filter Script Tag
+type: module
+description: 'Remove script tags from displaying according to hostnames also remove blank tags.'
+core_version_requirement: ^8 || ^9
+core: 8.x
+package: Filters
+
+# Information added by Drupal.org packaging script on 2020-07-17
+version: '1.0.x-dev'
+project: 'filter_script_tags'
+datestamp: 1595001689
