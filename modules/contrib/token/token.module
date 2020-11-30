@@ -605,7 +605,7 @@ function token_element_children(&$elements, $sort = FALSE) {
   $children = [];
   $sortable = FALSE;
   foreach ($elements as $key => $value) {
-    if ($key === '' || $key[0] !== '#') {
+    if (is_int($key) || $key === '' || $key[0] !== '#') {
       $children[$key] = $value;
       if (is_array($value) && isset($value['#weight'])) {
         $sortable = TRUE;
