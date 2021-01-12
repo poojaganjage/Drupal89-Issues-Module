@@ -1,0 +1,17 @@
+diff --git a/core/lib/Drupal/Core/Form/FormBuilder.php b/core/lib/Drupal/Core/Form/FormBuilder.php
+index 5e8e22a6..1f18c5f6 100644
+--- a/core/lib/Drupal/Core/Form/FormBuilder.php
++++ b/core/lib/Drupal/Core/Form/FormBuilder.php
+@@ -260,7 +260,11 @@ public function buildForm($form_arg, FormStateInterface &$form_state) {
+     // a previous step, we'll retrieve it so it can be passed on to the form
+     // processing code.
+     $check_cache = isset($input['form_id']) && $input['form_id'] == $form_id && !empty($input['form_build_id']);
+-    if ($check_cache) {
++    // Since form_build_id is coming from user input, need to check that it does
++    // not have any non-ASCII characters otherwise key/value database storage
++    // for the form cache will throw an exception.
++    // @see \Drupal\Core\KeyValueStore\DatabaseStorageExpirable::schemaDefinition()
++    if ($check_cache && mb_check_encoding($input['form_build_id'], 'ASCII')) {
+       $form = $this->getCache($input['form_build_id'], $form_state);
+     }
+ 

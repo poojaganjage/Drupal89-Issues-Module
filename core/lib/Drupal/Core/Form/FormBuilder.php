@@ -260,7 +260,11 @@ class FormBuilder implements FormBuilderInterface, FormValidatorInterface, FormS
     // a previous step, we'll retrieve it so it can be passed on to the form
     // processing code.
     $check_cache = isset($input['form_id']) && $input['form_id'] == $form_id && !empty($input['form_build_id']);
-    if ($check_cache) {
+    // Since form_build_id is coming from user input, need to check that it does
+    // not have any non-ASCII characters otherwise key/value database storage
+    // for the form cache will throw an exception.
+    // @see \Drupal\Core\KeyValueStore\DatabaseStorageExpirable::schemaDefinition()
+    if ($check_cache && mb_check_encoding($input['form_build_id'], 'ASCII')) {
       $form = $this->getCache($input['form_build_id'], $form_state);
     }
 
