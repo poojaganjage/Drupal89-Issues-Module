@@ -1,0 +1,5 @@
+name,store-id,address1,city,postal-code,state-code,country-code,phone,latitude,longitude,address2
+GNC at Belden Village Mall,100,4279 Belden Village,Canton,44718,OH,US,330-499-8025,40.85713956,-81.42767608,
+GNC at Rite Aid 0135,10000,217 Sunset Road,Willingboro,8046,NJ,US,,40.0484,-74.8842,
+GNC at Rite Aid 0142,10001,421 North High Street,Hillsboro,45133,OH,US,,39.2064,-83.6105,
+GNC at Rite Aid 0172,10006,2034 New Castle Avenue,New Castle,19720,DE,US,,39.69,-75.56,
